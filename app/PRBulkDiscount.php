@@ -10,6 +10,48 @@ class PRBulkDiscount{
     add_action('woocommerce_single_product_summary',[$this, 'pr_single_product_summary'],9);
     //show frontend in shop page under product title
     add_action('woocommerce_after_shop_loop_item_title', [$this, 'pr_single_product_summary'],5);
+    add_action( 'woocommerce_before_calculate_totals', [ $this, 'pr_discount_calculate' ] );
+
+    }
+    public function pr_discount_calculate($cart)
+    {
+        if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+        return;
+        }
+        if ( did_action( 'woocommerce_before_calculate_totals' ) >= 2 ) {
+            return;
+        }
+        foreach ( $cart->get_cart() as $cart_item ) {
+            $product = $cart_item['data'];
+            $is_enable = $this->cart_enable($product->get_id());
+            if($is_enable) {
+                $price =  $this->calculate_discount($product->get_id(), $cart_item);
+
+                $cart_item['data']->set_price(floatval($price));
+            }
+        }
+    }
+    public function calculate_discount($post_id, $cart_item){
+        $quantity = $cart_item['quantity'];
+        $product = $cart_item['data'];
+        $origin_price = $product->get_price();
+        $discounts = $this->condition_persing($post_id);
+        krsort($discounts);
+        $price= $origin_price;
+        $discounts_value = 0;
+        foreach ($discounts as $key => $value) {
+            if($quantity >= $key) {
+                $discounts_value  = $value;
+                break;
+            }
+        }
+        $price = $price - $discounts_value;
+        return $price;
+    }
+    public function cart_enable($post_id){
+
+        $discounts = $this->condition_persing($post_id);
+         return !empty($discounts);
     }
     public function pr_single_product_summary()
     {
@@ -50,6 +92,8 @@ class PRBulkDiscount{
             }
             $discount[intval($quantity)] = floatval($value);
         }
+//        error_log(print_r($discount, true) . "\n\n", 3, __DIR__ . '/log.txt');
+
         return $discount;
 
     }
@@ -81,8 +125,7 @@ class PRBulkDiscount{
         $post_id = get_the_ID();
         $bulk_discount_type = get_post_meta($post_id, "pr_bulk_discount_type_key", true);
         $bulk_discount_value = get_post_meta($post_id, "pr_bulk_discount_key", true);
-        $parsed_discounts = $this->condition_persing($post_id);
-        error_log(print_r($parsed_discounts, true) . "\n\n", 3, __DIR__ . '/log.txt');
+//        $parsed_discounts = $this->condition_persing($post_id);
 
         ?>
         <div id="pr_bulk_discount_options" class="panel woocommerce_options_panel">
