@@ -12,28 +12,8 @@ class PRBulkDiscount{
     //show frontend in shop page under product title
     add_action('woocommerce_after_shop_loop_item_title', [$this, 'pr_single_product_summary'],5);
     add_action( 'woocommerce_before_calculate_totals', [ $this, 'pr_show_subtotal' ] );
-//    add_action( 'woocommerce_cart_totals_before_order_total', [ $this, 'pr_show_bulk_discount_in_cart' ] );
     }
 
-    public function pr_show_bulk_discount_in_cart()
-    {
-        $subtotal = floatval( WC()->cart->get_subtotal() );
-        $total    = floatval( WC()->cart->get_total( 'edit' ) ); // 'edit' দিলে formatted price ছাড়া raw amount দেয়
-        $fees     = floatval( WC()->cart->get_fee_total() );
-
-        $discount_total = $subtotal - $total + $fees;
-
-        if ( $discount_total > 0 ) {
-            ?>
-            <tr class="cart-discount bulk-discount">
-                <th><?php _e( 'Bulk Discount', 'woocommerce' ); ?></th>
-                <td data-title="<?php esc_attr_e( 'Bulk Discount', 'woocommerce' ); ?>">
-                    -<?php echo wc_price( $discount_total ); ?>
-                </td>
-            </tr>
-            <?php
-        }
-    }
 
     public function pr_show_subtotal($cart)
     {
@@ -44,14 +24,19 @@ class PRBulkDiscount{
             return;
         }
         $total_discount = 0 ;
+        $chooes_option = get_option('pr_discount_type');
+
         foreach ( $cart->get_cart() as $cart_item ) {
             $product = $cart_item['data'];
             $is_enable = $this->cart_enable($product->get_id());
             if($is_enable) {
+
                 $discount_amount =  $this->calculate_discount($product->get_id(), $cart_item);
-                $cart_item['data']->set_price(floatval($discount_amount));
-//                $total_discount += $discount_amount;
-//                $cart_item['data']->add_fee( __( 'Bulk Discount', 'woocommerce' ), -$discount_total );
+                if($chooes_option=='option1'){
+                $total_discount += $discount_amount;
+                }elseif ($chooes_option=='option2'){
+                    $cart_item['data']->set_price(floatval($discount_amount));
+                }
             }
         }
         if ($total_discount > 0) {
@@ -59,6 +44,8 @@ class PRBulkDiscount{
         }
     }
     public function calculate_discount($post_id, $cart_item){
+        $chooes_option = get_option('pr_discount_type');
+
         $quantity = $cart_item['quantity'];
         $product = $cart_item['data'];
         $price = $product->get_price();
@@ -71,8 +58,11 @@ class PRBulkDiscount{
                 break;
             }
         }
-        $price = $price - $discounts_value; //origin price থেকে discount বাদ
-//        $price = $quantity*$discounts_value;//total discount value
+        if($chooes_option=='option1'){
+            $price = $quantity*$discounts_value;//total discount value
+        }elseif ($chooes_option=='option2'){
+            $price = $price - $discounts_value; //origin price থেকে discount বাদ
+        }
         return $price;
     }
     public function cart_enable($post_id){
