@@ -9,4 +9,5 @@ Author URI: https://github.com/mehedimahid
 License: GPL2
 */
 define("PRPLUGINDIRURL", plugin_dir_url(__FILE__));
+define("PLUGINDIRPATH", plugin_dir_path(__FILE__));
 require_once "app/PRBulkDiscount.php";

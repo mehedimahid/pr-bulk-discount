@@ -2,6 +2,7 @@
 
 class PRBulkDiscount{
     public function __construct() {
+    require_once (PLUGINDIRPATH."app/options-fields/PRoptionSetting.php");
 //        $this->condition_persing();
     add_filter('woocommerce_product_data_tabs', [$this, 'add_product_data_tabs']);
     add_action('woocommerce_product_data_panels', [$this, 'add_product_data_tabs_panel']);
@@ -12,8 +13,8 @@ class PRBulkDiscount{
     add_action('woocommerce_after_shop_loop_item_title', [$this, 'pr_single_product_summary'],5);
     add_action( 'woocommerce_before_calculate_totals', [ $this, 'pr_show_subtotal' ] );
 //    add_action( 'woocommerce_cart_totals_before_order_total', [ $this, 'pr_show_bulk_discount_in_cart' ] );
-
     }
+
     public function pr_show_bulk_discount_in_cart()
     {
         $subtotal = floatval( WC()->cart->get_subtotal() );
