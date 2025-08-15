@@ -45,7 +45,7 @@ class PRBulkDiscount{
     }
     public function calculate_discount($post_id, $cart_item){
         $chooes_option = get_option('pr_discount_type');
-
+        $discounts_type = get_post_meta($post_id, 'pr_bulk_discount_type_key', true);
         $quantity = $cart_item['quantity'];
         $product = $cart_item['data'];
         $price = $product->get_price();
@@ -58,11 +58,31 @@ class PRBulkDiscount{
                 break;
             }
         }
-        if($chooes_option=='option1'){
-            $price = $quantity*$discounts_value;//total discount value
-        }elseif ($chooes_option=='option2'){
-            $price = $price - $discounts_value; //origin price থেকে discount বাদ
+        if ($discounts_type == 'percentage') {
+            $discounts_amount =  $price * ($discounts_value / 100);
+            if($chooes_option=='option1'){
+               return  $quantity*$discounts_amount;//total discount value
+            }elseif ($chooes_option=='option2'){
+               return  $price - $discounts_amount; //origin price থেকে discount বাদ
+            }
+        }elseif ($discounts_type == 'fixed_discount_per_item') {
+            if($chooes_option=='option1'){
+                return $quantity*$discounts_value;//total discount value
+            }elseif ($chooes_option=='option2'){
+                return $price - $discounts_value; //origin price থেকে discount বাদ
+            }
+        }elseif ($discounts_type == 'fixed_discount_cart') {
+            if($chooes_option=='option1'){
+                return $quantity*$discounts_value;//total discount value
+            }elseif ($chooes_option=='option2'){
+                return $price - $discounts_value; //origin price থেকে discount বাদ
+            }
         }
+//        if($chooes_option=='option1'){
+//            $price = $quantity*$discounts_value;//total discount value
+//        }elseif ($chooes_option=='option2'){
+//            $price = $price - $discounts_value; //origin price থেকে discount বাদ
+//        }
         return $price;
     }
     public function cart_enable($post_id){
@@ -109,7 +129,6 @@ class PRBulkDiscount{
             }
             $discount[intval($quantity)] = floatval($value);
         }
-//        error_log(print_r($discount, true) . "\n\n", 3, __DIR__ . '/log.txt');
 
         return $discount;
 

@@ -34,7 +34,6 @@ class PRoptionSetting
                     <p>
                         <label for="pr-discount-type-1">Discount add on Fees</label>
                             <input type="radio" id="pr-discount-type-1" name="pr_discount_type" value="option1" <?php checked($value,'option1')?>>
-
                     </p>
                     <p>
                         <label for="pr-discount-type-2">Discount add on Price</label>
