@@ -1,0 +1,15 @@
+{
+    "name": "user/pr-bulk-discount",
+    "autoload": {
+        "psr-4": {
+            "PR\\": "app"
+        }
+    },
+    "authors": [
+        {
+            "name": "mehedimahid",
+            "email": "53916831+mehedimahid@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}

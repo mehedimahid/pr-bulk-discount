@@ -8,6 +8,11 @@ Author: Mehedi Hasan
 Author URI: https://github.com/mehedimahid
 License: GPL2
 */
+use PR\PRBulkDiscount ;
 define("PRPLUGINDIRURL", plugin_dir_url(__FILE__));
 define("PLUGINDIRPATH", plugin_dir_path(__FILE__));
-require_once "app/PRBulkDiscount.php";
+define( 'PR_DIR_PATH', plugin_dir_path( __FILE__ ) );
+require_once PR_DIR_PATH . 'vendor/autoload.php';
+new PRBulkDiscount();
+
+//require_once "app/PRBulkDiscount.php";

@@ -1,4 +1,6 @@
 <?php
+namespace PR\optionsFields;
+
 class PRoptionSetting
 {
     public function __construct(){
@@ -7,6 +9,9 @@ class PRoptionSetting
     }
     public function pr_save_custom_setting()
     {
+        if(!isset($_POST['pr_submit_setting_btn'])){
+            return;
+        }
         if(isset($_POST['pr_discount_type'])){
             update_option('pr_discount_type', sanitize_text_field($_POST['pr_discount_type']));
             echo '<div class="updated"><p>Settings saved successfully!</p></div>';
@@ -40,10 +45,9 @@ class PRoptionSetting
                         <input type="radio" class="pr-discount-type-2" name="pr_discount_type" value="option2"<?php checked($value,'option2')?>>
                     </p>
                 </div>
-                <?php submit_button(); ?>
+                <?php submit_button( '',  'primary', 'pr_submit_setting_btn'); ?>
             </form>
         </div>
         <?php
     }
 }
-new PRoptionSetting();

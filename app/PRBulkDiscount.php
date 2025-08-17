@@ -1,9 +1,10 @@
 <?php
-
+namespace PR;
+use PR\optionsFields\PRoptionSetting;
 class PRBulkDiscount{
     public function __construct() {
-    require_once (PLUGINDIRPATH."app/options-fields/PRoptionSetting.php");
-//        $this->condition_persing();
+        new PRoptionSetting();
+
     add_filter('woocommerce_product_data_tabs', [$this, 'add_product_data_tabs']);
     add_action('woocommerce_product_data_panels', [$this, 'add_product_data_tabs_panel']);
     add_action('save_post', [$this, 'save_pr_bulk_discount'],1,2);
@@ -12,9 +13,16 @@ class PRBulkDiscount{
     //show frontend in shop page under product title
     add_action('woocommerce_after_shop_loop_item_title', [$this, 'pr_single_product_summary'],5);
     add_action( 'woocommerce_before_calculate_totals', [ $this, 'pr_show_subtotal' ] );
+    add_action('woocommerce_after_cart_item_name', [$this, 'pr_save_beside_item_name'],10,2);
     }
 
-
+    public function pr_save_beside_item_name($cart_item, $cart_item_key)
+    {
+        $discount_amount =  $this->calculate_discount($cart_item['product_id'], $cart_item);
+        if ( $discount_amount > 0 ) {
+            echo ' (save ' . wc_price($discount_amount) . ')';
+        }
+    }
     public function pr_show_subtotal($cart)
     {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
@@ -49,15 +57,17 @@ class PRBulkDiscount{
         $quantity = $cart_item['quantity'];
         $product = $cart_item['data'];
         $price = $product->get_price();
+        $subtotal =  $cart_item['line_subtotal'];
         $discounts = $this->condition_persing($post_id);
         krsort($discounts);
         $discounts_value = 0;
         foreach ($discounts as $key => $value) {
-            if($quantity >= $key) {
+            if($quantity >= $key || $subtotal >= $key) {
                 $discounts_value  = $value;
                 break;
             }
         }
+
         if ($discounts_type == 'percentage') {
             $discounts_amount =  $price * ($discounts_value / 100);
             if($chooes_option=='option1'){
@@ -72,11 +82,7 @@ class PRBulkDiscount{
                 return $price - $discounts_value; //origin price থেকে discount বাদ
             }
         }elseif ($discounts_type == 'fixed_discount_cart') {
-            if($chooes_option=='option1'){
-                return $quantity*$discounts_value;//total discount value
-            }elseif ($chooes_option=='option2'){
-                return $price - $discounts_value; //origin price থেকে discount বাদ
-            }
+            return  $discounts_value; //origin price থেকে discount বাদ
         }
 //        if($chooes_option=='option1'){
 //            $price = $quantity*$discounts_value;//total discount value
@@ -194,6 +200,5 @@ class PRBulkDiscount{
         return $tabs;
     }
 }
-new PRBulkDiscount();
 
 
