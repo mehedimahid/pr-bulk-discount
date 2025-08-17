@@ -15,4 +15,3 @@ define( 'PR_DIR_PATH', plugin_dir_path( __FILE__ ) );
 require_once PR_DIR_PATH . 'vendor/autoload.php';
 new PRBulkDiscount();
 
-//require_once "app/PRBulkDiscount.php";
